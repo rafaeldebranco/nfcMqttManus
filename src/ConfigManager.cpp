@@ -36,6 +36,9 @@ bool ConfigManager::loadConfig() {
     _config.mqtt_user = doc["mqtt_user"] | "";
     _config.mqtt_pass = doc["mqtt_pass"] | "";
     _config.mqtt_topic = doc["mqtt_topic"] | "manus/nfc/readings";
+    _config.mqtt_status_topic = doc["mqtt_status_topic"] | "manus/nfc/status"; // Novo campo
+    _config.mqtt_status_online_msg = doc["mqtt_status_online_msg"] | "online"; // Novo campo
+    _config.mqtt_status_offline_msg = doc["mqtt_status_offline_msg"] | "offline"; // Novo campo
 
     return true;
 }
@@ -55,6 +58,9 @@ bool ConfigManager::saveConfig(const Config& config) {
     doc["mqtt_user"] = config.mqtt_user;
     doc["mqtt_pass"] = config.mqtt_pass;
     doc["mqtt_topic"] = config.mqtt_topic;
+    doc["mqtt_status_topic"] = config.mqtt_status_topic; // Novo campo
+    doc["mqtt_status_online_msg"] = config.mqtt_status_online_msg; // Novo campo
+    doc["mqtt_status_offline_msg"] = config.mqtt_status_offline_msg; // Novo campo
 
     if (serializeJson(doc, file) == 0) {
         Serial.println("Falha ao escrever no arquivo");

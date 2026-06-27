@@ -34,13 +34,16 @@ bool MqttManager::reconnect() {
     
     bool connected = false;
     if (cfg.mqtt_user.length() > 0) {
-        connected = _mqttClient.connect(clientId.c_str(), cfg.mqtt_user.c_str(), cfg.mqtt_pass.c_str());
+        connected = _mqttClient.connect(clientId.c_str(), cfg.mqtt_user.c_str(), cfg.mqtt_pass.c_str(), 
+                                        cfg.mqtt_status_topic.c_str(), 0, true, cfg.mqtt_status_offline_msg.c_str());
     } else {
-        connected = _mqttClient.connect(clientId.c_str());
+        connected = _mqttClient.connect(clientId.c_str(), 
+                                        cfg.mqtt_status_topic.c_str(), 0, true, cfg.mqtt_status_offline_msg.c_str());
     }
 
     if (connected) {
         Serial.println("conectado");
+        publishStatus(cfg.mqtt_status_online_msg.c_str()); // Publica status online ao conectar
     } else {
         Serial.print("falhou, rc=");
         Serial.println(_mqttClient.state());
@@ -51,6 +54,11 @@ bool MqttManager::reconnect() {
 bool MqttManager::publish(const char* payload) {
     if (!_mqttClient.connected()) return false;
     return _mqttClient.publish(_configMgr.getConfig().mqtt_topic.c_str(), payload);
+}
+
+void MqttManager::publishStatus(const char* statusMessage) {
+    if (!_mqttClient.connected()) return;
+    _mqttClient.publish(_configMgr.getConfig().mqtt_status_topic.c_str(), statusMessage, true);
 }
 
 bool MqttManager::isConnected() {

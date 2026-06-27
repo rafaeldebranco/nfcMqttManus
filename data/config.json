@@ -8,5 +8,8 @@
   "mqtt_port": 1883,
   "mqtt_user": "",
   "mqtt_pass": "",
-  "mqtt_topic": "manus/nfc/readings"
+  "mqtt_topic": "manus/nfc/readings",
+  "mqtt_status_topic": "manus/nfc/status",
+  "mqtt_status_online_msg": "online",
+  "mqtt_status_offline_msg": "offline"
 }

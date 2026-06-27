@@ -13,6 +13,7 @@ public:
     void loop();
     bool publish(const char* payload);
     bool isConnected();
+    void publishStatus(const char* statusMessage); // Nova função para publicar status
 
 private:
     ConfigManager& _configMgr;

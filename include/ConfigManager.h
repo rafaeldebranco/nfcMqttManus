@@ -16,6 +16,9 @@ struct Config {
     String mqtt_user;
     String mqtt_pass;
     String mqtt_topic;
+    String mqtt_status_topic; // Novo campo para o tópico de status
+    String mqtt_status_online_msg; // Novo campo para mensagem online
+    String mqtt_status_offline_msg; // Novo campo para mensagem offline
 };
 
 class ConfigManager {
