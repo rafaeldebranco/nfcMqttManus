@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Configurações - nfcMqttManus</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); max-width: 600px; margin: 20px auto; }
+        h2 { color: #333; text-align: center; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input[type="text"], input[type="password"], input[type="number"] { width: calc(100% - 22px); padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 20px; }
+        button:hover { background-color: #0056b3; }
+        .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        .back-button { display: block; width: 100px; margin: 20px auto 0; padding: 10px; text-align: center; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; }
+        .back-button:hover { background-color: #5a6268; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Configurações do Dispositivo</h2>
+        <form id="configForm">
+            <h3>WiFi</h3>
+            <label for="wifi_ssid">SSID:</label>
+            <input type="text" id="wifi_ssid" name="wifi_ssid">
+            <label for="wifi_pass">Senha WiFi:</label>
+            <input type="password" id="wifi_pass" name="wifi_pass">
+
+            <h3>GSM</h3>
+            <label for="gsm_apn">APN GSM:</label>
+            <input type="text" id="gsm_apn" name="gsm_apn">
+            <label for="gsm_user">Usuário GSM:</label>
+            <input type="text" id="gsm_user" name="gsm_user">
+            <label for="gsm_pass">Senha GSM:</label>
+            <input type="password" id="gsm_pass" name="gsm_pass">
+
+            <h3>MQTT</h3>
+            <label for="mqtt_server">Servidor MQTT:</label>
+            <input type="text" id="mqtt_server" name="mqtt_server">
+            <label for="mqtt_port">Porta MQTT:</label>
+            <input type="number" id="mqtt_port" name="mqtt_port">
+            <label for="mqtt_user">Usuário MQTT:</label>
+            <input type="text" id="mqtt_user" name="mqtt_user">
+            <label for="mqtt_pass">Senha MQTT:</label>
+            <input type="password" id="mqtt_pass" name="mqtt_pass">
+            <label for="mqtt_topic">Tópico de Leitura NFC:</label>
+            <input type="text" id="mqtt_topic" name="mqtt_topic">
+            <label for="mqtt_status_topic">Tópico de Status MQTT:</label>
+            <input type="text" id="mqtt_status_topic" name="mqtt_status_topic">
+            <label for="mqtt_status_online_msg">Mensagem Online:</label>
+            <input type="text" id="mqtt_status_online_msg" name="mqtt_status_online_msg">
+            <label for="mqtt_status_offline_msg">Mensagem Offline:</label>
+            <input type="text" id="mqtt_status_offline_msg" name="mqtt_status_offline_msg">
+
+            <button type="submit">Salvar Configurações</button>
+        </form>
+        <div id="message" class="message" style="display:none;"></div>
+        <a href="/" class="back-button">Voltar</a>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetchConfig();
+
+            document.getElementById("configForm").addEventListener("submit", function(event) {
+                event.preventDefault();
+                saveConfig();
+            });
+        });
+
+        async function fetchConfig() {
+            try {
+                const response = await fetch("/api/config");
+                if (!response.ok) {
+                    throw new Error("Falha ao carregar configurações");
+                }
+                const config = await response.json();
+                for (const key in config) {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = config[key];
+                    }
+                }
+            } catch (error) {
+                showMessage("error", "Erro ao carregar configurações: " + error.message);
+            }
+        }
+
+        async function saveConfig() {
+            const form = document.getElementById("configForm");
+            const formData = new FormData(form);
+            const config = {};
+            formData.forEach((value, key) => {
+                config[key] = value;
+            });
+
+            try {
+                const response = await fetch("/api/saveConfig", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                const result = await response.text();
+                if (response.ok) {
+                    showMessage("success", result);
+                } else {
+                    showMessage("error", "Erro ao salvar: " + result);
+                }
+            } catch (error) {
+                showMessage("error", "Erro de rede ao salvar configurações: " + error.message);
+            }
+        }
+
+        function showMessage(type, text) {
+            const messageDiv = document.getElementById("message");
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = "block";
+            setTimeout(() => {
+                messageDiv.style.display = "none";
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

@@ -3,11 +3,19 @@
 #include "ConnectivityManager.h"
 #include "MqttManager.h"
 #include "NfcManager.h"
+#include "WebServerManager.h"
+#include "WebSerialLogger.h"
+
+// Credenciais para o servidor web
+const char* WEB_USERNAME = "admin";
+const char* WEB_PASSWORD = "admin"; // Mude para uma senha forte em produção!
 
 ConfigManager configMgr;
 ConnectivityManager connMgr(configMgr);
 MqttManager mqttMgr(configMgr, connMgr);
 NfcManager nfcMgr;
+WebServerManager webServerMgr(configMgr, WEB_USERNAME, WEB_PASSWORD);
+WebSerialLogger webSerialLogger(&webServerMgr);
 
 unsigned long lastStatusUpdate = 0;
 
@@ -16,12 +24,17 @@ void setup() {
     delay(1000);
     Serial.println("\n--- nfcMqttManus Iniciando ---");
 
+    // Redireciona a saída Serial para o WebSerialLogger
+    Serial.setDebugOutput(false); // Desabilita a saída de debug padrão do ESP32 para não duplicar
+    Serial.addPrint(webSerialLogger); // Adiciona nosso logger customizado
+
     if (!configMgr.begin() || !configMgr.loadConfig()) {
         Serial.println("Erro ao carregar configurações!");
     }
 
     connMgr.begin();
     mqttMgr.begin();
+    webServerMgr.begin();
     
     if (!nfcMgr.begin()) {
         Serial.println("Erro ao iniciar NFC!");
@@ -34,6 +47,9 @@ void loop() {
     
     // Mantém conexão MQTT
     mqttMgr.loop();
+
+    // Lida com requisições do servidor web e WebSockets
+    webServerMgr.handleClient();
 
     // Scan de NFC
     String tagUid;
