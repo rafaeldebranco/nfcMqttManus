@@ -1,0 +1,12 @@
+{
+  "wifi_ssid": "SUA_REDE_WIFI",
+  "wifi_pass": "SUA_SENHA_WIFI",
+  "gsm_apn": "zap.vivo.com.br",
+  "gsm_user": "",
+  "gsm_pass": "",
+  "mqtt_server": "broker.hivemq.com",
+  "mqtt_port": 1883,
+  "mqtt_user": "",
+  "mqtt_pass": "",
+  "mqtt_topic": "manus/nfc/readings"
+}
